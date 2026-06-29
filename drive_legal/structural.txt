@@ -1,0 +1,70 @@
+```
+                                    ┌───────────────────────────┐
+                                    │    SYSTEM STARTUP         │
+                                    │  Database Initialization  │
+                                    │   & Law Data Seeding      │
+                                    │    (seed_laws.py)         │
+                                    └─────────────┬─────────────┘
+                                                  │
+                                                  ▼
+ ┌───────────────────────────┐      ┌───────────────────────────┐
+ │   IOT DEVICE TELEMETRY    │      │    BACKEND API SERVER     │
+ │  Simulate traffic events  │      │  Exposes REST Endpoints  │
+ │   at random intervals     │ ───► │       & Handles DB        │
+ │      (simulate.py)        │      │        (main.py)          │
+ └───────────────────────────┘      └─────────────┬─────────────┘
+                                                  │             ▲
+                                    (Read/Write)  │             │ (Fetch Live Payload /
+                                                  ▼             │  Post Challan Payments)
+                                    ┌───────────────────────────┐             │
+                                    │      PERSISTENT DB        │             │
+                                    │   PostgreSQL Storage      │             │
+                                    │  Vehicles, Citations & Laws             │
+                                    │       (models.py)         │             │
+                                    └───────────────────────────┘             │
+                                                                              │
+                                                                              ▼
+                                                       ┌──────────────────────────────┐
+                                                       │    STREAMLIT USER PORTAL     │
+                                                       │   Dynamic Dark UI Rendering  │
+                                                       │          (App1.py)           │
+                                                       └──────────────┬───────────────┘
+                                                                      │
+                                           ┌──────────────────────────┴──────────────────────────┐
+                                           │                   View Switchboard                  │
+                                           ▼                                                     ▼
+                        ┌─────────────────────────────────────┐               ┌─────────────────────────────────────┐
+                        │          DASHBOARD VIEW             │               │         MY VIOLATIONS VIEW          │
+                        │ • Aggregated Summary KPI Cards      │               │ • Live Fine Outstanding Metrics     │
+                        │ • Folium Hotspot Incident Mapping   │               │ • Real-time String & Dropdown Filters│
+                        │ • Matplotlib Driving Score Analytics│               │ • Certified Text Log Exporter       │
+                        │ • Quick-action Deep Links           │               │ • Interactive Court Dispute Forms   │
+                        └─────────────────────────────────────┘               └─────────────────────────────────────┘
+
+```
+
+Here is the structured data architecture and runtime flowchart outlining how data moves through your **DriveLegal** ecosystem. This maps how your background loops, database entities, and front-end interface interact.
+
+---
+
+### 🔀 Step-by-Step Data Pipeline Execution Flow
+
+#### 1. The Bootstrap & Hydration Phase
+
+* **`models.py`** initializes the system database structure (`drive_legal`) over your local PostgreSQL service instance.
+* **`seed_laws.py`** runs as a prerequisite administrative script. It drops any residual tables, updates your relational constraints, and loops through a hardcoded payload map to insert the fine matrices of 24 unique Indian states into your persistent database.
+
+#### 2. The Asynchronous Data Collection Engine
+
+* **`simulate.py`** acts as a mockup for real-world automated highway cameras. It fires up a persistent background terminal process that runs on an infinite loop, executing an event generation routine every 8 to 15 seconds.
+* Each event picks a random vehicle infraction (e.g., *Overspeeding*, *Red Light Jump*), generates pseudo-random location offsets around central Delhi, targets vehicle `DL01AB1234`, and fires a structured JSON request payload.
+* **`main.py`** (FastAPI) receives the incoming payload via the `/api/v1/violations/trigger` POST boundary route. It transforms the raw JSON dictionary into an explicit object instance of your `Violation` model class and commits it straight down into the PostgreSQL backend.
+
+#### 3. Presentation State Sync & Reactive Filtering
+
+* When a user visits **`App1.py`** (Streamlit), the application establishes a synchronous request to the `/api/v1/dashboard-complete/{vehicle_id}` GET endpoint.
+* If your FastAPI microservice is online, the database queries your matching record logs and streams a dynamic JSON summary object payload back to the client UI. If it's offline, the front-end intercepts the request exception and maps your standalone local variables (`fallback_payload`) to ensure uninterrupted UI rendering.
+* When a user selects the **My Violations** view channel:
+1. The app aggregates live metric calculations on top of the active arrays, computing outstanding sum values (`pending_amount`) and calculating how many tickets are pending or under review.
+2. The input filter controllers (text entry boxes and drop-down selectors) feed search queries into an embedded filtering loop.
+3. This matching loop filters rows instantly based on matching locations, category options, or active review status dictionaries, updating the UI layout.
