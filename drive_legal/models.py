@@ -3,7 +3,12 @@ import sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker
 import datetime
-DATABASE_URL = "postgresql://postgres:Shinchan1234@localhost:5432/drive_legal"
+import os
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set. Add it as a Secret in your Hugging Face Space settings.")
+
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
